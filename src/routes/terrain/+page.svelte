@@ -18,6 +18,8 @@
 
 	let mesh, texture;
 
+	let res = 1000;
+
 	const worldWidth = 256, worldDepth = 256,
 		worldHalfWidth = worldWidth / 2, worldHalfDepth = worldDepth / 2;
 
@@ -57,19 +59,21 @@
 			controls = new OrbitControls( camera, renderer.domElement );
 			controls.minDistance = 1000;
 			controls.maxDistance = 10000;
-			controls.maxPolarAngle = Math.PI / 2;
+			// controls.maxPolarAngle = Math.PI / 2;
 
 			//
 
 			const data = generateHeight( worldWidth, worldDepth );
 
 			controls.target.y = data[ worldHalfWidth + worldHalfDepth * worldWidth ] + 500;
-			camera.position.y = controls.target.y + 10000;
-			camera.position.x = 2000;
+			camera.position.y = controls.target.y + 100;
+			camera.position.x = 5000;
+			camera.position.z = 500;
 			controls.update();
 
-			const geometry = new THREE.PlaneGeometry( 7500, 7500, worldWidth - 1, worldDepth - 1 );
+			const geometry = new THREE.PlaneGeometry( res, res, worldWidth - 1, worldDepth - 1 );
 			geometry.rotateX( - Math.PI / 2 );
+			geometry.translate(res/2, 0, res/2)
 
 			const vertices = geometry.attributes.position.array;
 
@@ -86,8 +90,41 @@
 			texture.wrapT = THREE.ClampToEdgeWrapping;
 			texture.colorSpace = THREE.SRGBColorSpace;
 
+			let planeMat = new THREE.MeshBasicMaterial({
+				color: 0xaa00aa, 
+				// side: THREE.SingleSide, wireframe: true} 
+				wireframe: true
+			});
+
 			mesh = new THREE.Mesh( geometry, new THREE.MeshBasicMaterial( { map: texture } ) );
 			scene.add( mesh );
+
+			// Add x-y plane
+			const xy_geometry = new THREE.PlaneGeometry( res, res, worldWidth - 1, worldDepth - 1 );
+			xy_geometry.translate(res/2, res/2, 0)
+
+			const xy_vertices = geometry.attributes.position.array;
+			let xy_plane = new THREE.Mesh( xy_geometry, planeMat );
+			scene.add( xy_plane );
+
+			// Add x-z plane
+			const xz_geometry = new THREE.PlaneGeometry( res, res, worldWidth - 1, worldDepth - 1 );
+			xz_geometry.rotateX( - Math.PI / 2 );
+			xz_geometry.translate(res/2, 0, res/2)
+
+			const xz_vertices = geometry.attributes.position.array;
+			let xz_plane = new THREE.Mesh( xz_geometry, planeMat );
+			scene.add( xz_plane );
+
+			// Add y-z plane
+			const yz_geometry = new THREE.PlaneGeometry( res, res, worldWidth - 1, worldDepth - 1 );
+			yz_geometry.rotateY( + Math.PI / 2 );
+			yz_geometry.translate(0, res/2, res/2)
+
+			const yz_vertices = geometry.attributes.position.array;
+			let yz_plane = new THREE.Mesh( yz_geometry, planeMat );
+			scene.add( yz_plane );
+
 
 			// const geometryHelper = new THREE.ConeGeometry( 20, 100, 3 );
 			// geometryHelper.translate( 0, 50, 0 );
@@ -122,18 +159,18 @@
 
 			let quality = 1;
 
-			for ( let j = 0; j < 4; j ++ ) {
+			//for ( let j = 0; j < 4; j ++ ) {
 
-				for ( let i = 0; i < size; i ++ ) {
+				//for ( let i = 0; i < size; i ++ ) {
 
-					const x = i % width, y = ~ ~ ( i / width );
-					data[ i ] += Math.abs( perlin.noise( x / quality, y / quality, z ) * quality * 1.75 );
+					//const x = i % width, y = ~ ~ ( i / width );
+					//data[ i ] += Math.abs( perlin.noise( x / quality, y / quality, z ) * quality * 1.75 );
 
-				}
+				//}
 
-				quality *= 5;
+				//quality *= 5;
 
-			}
+			//}
 
 			console.log(data);
 			return data;
